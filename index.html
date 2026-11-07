@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="en" data-audience="player">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Weft - voxel sandbox engine in Rust</title>
+<meta name="description" content="Weft is a voxel sandbox engine written in Rust. The game itself is a mod built on the public SDK, so anything it does, your mod can do or change.">
+<meta property="og:title" content="Weft - voxel sandbox engine in Rust">
+<meta property="og:description" content="Weft is a voxel sandbox engine written in Rust. The game itself is a mod built on the public SDK, so anything it does, your mod can do or change.">
+<meta property="og:image" content="./assets/banner.png">
+<meta name="theme-color" content="#14161e">
+<link rel="icon" type="image/png" href="./assets/icon.png?v=4">
+<link rel="apple-touch-icon" href="./assets/icon.png?v=4">
+<link rel="shortcut icon" href="./favicon.ico">
+<link rel="preload" href="./fonts/weft.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="./style.css">
+<noscript><style>[data-for] { display: revert !important; } .toggle { display: none; } #field { display: none; }</style></noscript>
+<script>
+  // Before the first paint, so a returning modder never sees the players' page flash by.
+  (function () {
+    var asked = new URLSearchParams(location.search).get("for");
+    var saved = null;
+    try { saved = localStorage.getItem("weft.audience"); } catch (e) {}
+    var who = asked === "modders" ? "modder" : asked === "players" ? "player" : saved;
+    if (who === "modder" || who === "player") document.documentElement.dataset.audience = who;
+  })();
+</script>
+</head>
+<body>
+<canvas id="field" aria-hidden="true"></canvas>
+
+<header class="bar">
+  <a class="bar-name" href="./">WEFT</a>
+  <fieldset class="toggle">
+    <legend class="hidden">Show this page</legend>
+    <label><input type="radio" name="audience" value="player" checked><span>For players</span></label>
+    <label><input type="radio" name="audience" value="modder"><span>For modders</span></label>
+  </fieldset>
+  <nav class="bar-links">
+    <a href="#download">Download</a>
+    <a href="https://github.com/Weft-Rust/Weft/tree/master/docs">Docs</a>
+    <a href="https://github.com/Weft-Rust/Weft">GitHub</a>
+    <a href="https://discord.gg/zTEekbrc7U">Discord</a>
+  </nav>
+</header>
+
+<main>
+  <section class="hero" data-scene="banner" data-modder-scene="threads">
+    <div class="hero-text clear">
+      <h1>WEFT</h1>
+      <p class="tag">VOXEL SANDBOX ENGINE IN RUST</p>
+
+      <div data-for="player">
+        <p class="lead">It plays a lot like Minecraft, with survival and creative, crafting, mobs and caves. It isn't a clone, and it doesn't read Minecraft worlds.</p>
+        <p class="mobile-note" data-mobile-note hidden>Weft runs on Windows, Linux and macOS, so you'll need a computer for it.</p>
+        <p class="actions">
+          <a class="button" data-download href="https://github.com/Weft-Rust/Weft/releases/latest"><span data-download-label>Download</span><small data-download-meta></small></a>
+          <a class="more" href="#download">Other systems</a>
+        </p>
+        <p class="note">Unpack it and run it, you need a GPU with Vulkan. It's still early, so the save format can change between versions.</p>
+      </div>
+
+      <div data-for="modder">
+        <p class="lead">The game itself is a mod called <code>base</code>, with no private hooks or priorities from the engine. If base can do something, your mod can too.</p>
+        <p class="actions">
+          <a class="button" href="https://github.com/Weft-Rust/Weft/blob/master/docs/modding.md"><span>Read the cheat sheet</span></a>
+          <a class="more" href="https://github.com/Weft-Rust/Weft/tree/master/examples/examplemod">Open examplemod</a>
+        </p>
+        <p class="note"><a href="https://github.com/Weft-Rust/Weft/tree/master/mods/testmod">testmod</a> is in the repo to prove you don't have to touch the engine.</p>
+      </div>
+    </div>
+    <a class="scroll-arrow" href="#explore" aria-label="Scroll down">
+      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="28" viewBox="0 0 16 14" shape-rendering="crispEdges">
+        <path fill="currentColor" d="M6 0h4v6H6z M2 6h12v2H2z M4 8h8v2H4z M6 10h4v2H6z M7 12h2v2H7z"/>
+      </svg>
+    </a>
+  </section>
+
+  <section class="sec left" id="explore" data-for="player" data-scene="deep">
+    <div class="copy clear">
+      <h2>How far the world goes</h2>
+      <p>Chunks here are cubes, 16 blocks on every side, so there's no limit on height or depth.</p>
+      <p>Terrain is generated on the GPU, which is what lets distant terrain be drawn far past your view distance. There are caves and several dimensions, and biome colors blend into each other at the borders.</p>
+    </div>
+    <figure class="shot clear"><div class="frame"><img src="assets/how-far.png" alt="Distant terrain to the horizon"></div></figure>
+  </section>
+
+  <section class="sec right short" data-for="player" data-scene="grow">
+    <div class="copy clear">
+      <h2>Time while you're away</h2>
+      <p>There are no random ticks. Plants, furnaces and other timed blocks catch up on the time nobody was there for, even if their chunks weren't loaded, so a furnace you left smelting has kept going when you come back.</p>
+    </div>
+  </section>
+
+  <section class="sec left short" data-for="player" data-scene="link">
+    <div class="copy clear">
+      <h2>Playing with friends</h2>
+      <p>In the pause menu, go to Multiplayer and pick Open to Friends. That gives you a ticket, and your friend pastes it into Multiplayer &gt; Join. It works peer to peer, so you don't need a server or port forwarding.</p>
+      <p>For a world that stays up, <code>weft --server</code> runs one without a window or a GPU.</p>
+    </div>
+  </section>
+
+  <section class="sec left" data-for="player" data-scene="light">
+    <div class="copy clear">
+      <h2>Light and textures</h2>
+      <p>Blocks can emit colored light, and where two lamps overlap the colors mix. Textures can connect to their neighbors, pick random variants, animate or glow.</p>
+      <p>Resource packs and shader packs can change how all of it looks.</p>
+    </div>
+    <figure class="shot clear"><div class="frame"><img src="assets/lighting.png" alt="Build at night lit with colored lights"></div></figure>
+  </section>
+
+  <section class="sec right short" data-for="player" data-scene="banner">
+    <div class="copy clear">
+      <h2>What else is in there</h2>
+      <ul class="plain">
+        <li>Moving structures you can stand and build on</li>
+        <li>Machines powered by energy</li>
+        <li>A bucket that picks up any liquid</li>
+        <li>Mobs that can find a path to you</li>
+        <li>A built-in recipe viewer</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="sec split" data-for="modder" data-scene="layers">
+    <div class="copy clear">
+      <h2>What a mod looks like</h2>
+      <p>This is a whole <code>lib.rs</code>. It adds a ruby, an ore that only drops it for an iron pickaxe or better, and veins of that ore between y -64 and 16. To get it running:</p>
+      <ol class="steps">
+        <li>Clone the <a href="https://github.com/Weft-Rust/Weft">repo</a>, because a mod builds against the SDK in it.</li>
+        <li>Copy <code>examples/examplemod</code> and rename it. Every kind of registration is in there as a commented example.</li>
+        <li>Run <code>cargo build --release</code>, then put the library and your <code>assets</code> in <code>run/mods/&lt;name&gt;/</code>. The folder has to have the same name as the crate, or the game stops at load.</li>
+      </ol>
+      <p>A released game keeps its mods in your user folders instead, and its Mods screen has a button that opens the right one.</p>
+    </div>
+    <div class="panel clear"><div class="panel-name">lib.rs</div><pre><code><span class="k">use</span> weft_sdk::*;
+
+<span class="t">declare_mod!</span>(deps: [<span class="s">"base"</span>], init: init);
+
+<span class="k">pub</span> <span class="k">static</span> <span class="t">RUBY</span>: <span class="t">Item</span> = <span class="t">Item</span>::named(<span class="s">"ruby"</span>);
+<span class="k">pub</span> <span class="k">static</span> <span class="t">RUBY_ORE</span>: <span class="t">Block</span> = <span class="t">Block</span>::named(<span class="s">"ruby_ore"</span>);
+<span class="k">static</span> <span class="t">INGREDIENTS</span>: <span class="t">CreativeTab</span> =
+    <span class="t">CreativeTab</span>::named(<span class="s">"base:ingredients"</span>);
+
+<span class="k">fn</span> init(r: &amp;<span class="k">mut</span> <span class="t">Registry</span>) {
+    r.block(&amp;<span class="t">RUBY_ORE</span>)
+        .hardness(<span class="n">3.0</span>)
+        .mined_by(<span class="s">"pickaxe"</span>, tool_tier::<span class="t">IRON</span>)
+        .drops(<span class="s">"ruby"</span>, <span class="n">1</span>);
+    r.item(&amp;<span class="t">RUBY</span>).tag(<span class="s">"gems/ruby"</span>).tab(&amp;<span class="t">INGREDIENTS</span>);
+    r.ore(&amp;<span class="t">RUBY_ORE</span>).y(-<span class="n">64</span>, <span class="n">16</span>).veins(<span class="n">2</span>).vein_size(<span class="n">5</span>)
+        .replaces(<span class="s">"#stone_ore_replaceables"</span>);
+}</code></pre></div>
+  </section>
+
+  <section class="sec right" data-for="modder" data-scene="threads">
+    <div class="copy wide clear">
+      <h2>How mods work with each other</h2>
+      <p>Things like fuel, food, durability, <code>sand</code> or <code>ores/iron</code> are components and tags, and those names belong to nobody. Any mod reads and writes them without depending on whoever added a certain block.</p>
+      <div class="panel"><pre><code>r.item(&amp;<span class="t">COAL_DUST</span>).set(&amp;<span class="t">FUEL</span>, <span class="n">800</span>).tag(<span class="s">"hot"</span>);  <span class="c">// your own content</span>
+r.set(<span class="s">"base:stick"</span>, &amp;<span class="t">FUEL</span>, <span class="n">100</span>);                <span class="c">// someone else's</span>
+r.set(<span class="s">"#planks/*"</span>, &amp;<span class="t">FUEL</span>, <span class="n">300</span>);                 <span class="c">// everything tagged</span>
+
+<span class="k">if</span> <span class="k">let</span> <span class="t">Some</span>(ticks) = <span class="t">FUEL</span>.on_item(stack.item) { <span class="c">/* burn it */</span> }</code></pre></div>
+      <p>Recipes use the same names. This line from the base game makes one recipe per material that has both tags, so a new wood from any mod gets its planks.</p>
+      <div class="panel"><pre><code>r.shapeless(<span class="t">C</span>, <span class="s">"#planks/{m}"</span>, <span class="n">4</span>, &amp;[<span class="s">"#logs/{m}"</span>], <span class="n">0</span>);</code></pre></div>
+    </div>
+  </section>
+
+  <section class="sec split flip" data-for="modder" data-scene="deep">
+    <div class="copy clear">
+      <h2>Four ways to hook in</h2>
+      <p>Try them in this order. Having to work around the engine to do something reasonable is an engine flaw, and it's better reported than built around with a hack.</p>
+      <p><a href="https://discord.gg/zTEekbrc7U">Report it on Discord</a></p>
+    </div>
+    <div class="panel clear"><pre><code><span class="c">// Events: batched once per tick, can't be canceled</span>
+r.on_event(&amp;<span class="t">LEVEL_UP</span>, |b| <span class="k">for</span> e <span class="k">in</span> b.iter() { <span class="c">/* ... */</span> });
+
+<span class="c">// Questions: anyone may say no, any deny wins</span>
+r.before_event(&amp;actions::<span class="t">BREAK_BLOCK</span>, |q| {
+    <span class="k">if</span> is_protected(q.pos()) {
+        <span class="t">Verdict</span>::<span class="t">Deny</span>
+    } <span class="k">else</span> {
+        <span class="t">Verdict</span>::<span class="t">Abstain</span>
+    }
+});
+
+<span class="c">// Value chains: damage, attack damage, or your own</span>
+r.modify(&amp;chain::<span class="t">DAMAGE</span>, stage::<span class="t">MULTIPLY</span>, |m| {
+    m.value *= <span class="n">0.5</span>
+});
+
+<span class="c">// Attributes: timed modifiers, saved with the entity</span>
+r.attribute(&amp;<span class="t">MANA</span>, <span class="n">100.0</span>, <span class="n">0.0</span>, <span class="n">1000.0</span>);</code></pre></div>
+  </section>
+
+  <section class="sec left" data-for="modder" data-scene="ripple">
+    <div class="copy clear">
+      <h2>When something goes wrong</h2>
+      <p>F3+T reloads textures, translations, shaders and UI without restarting. F3 shows your mod's time per tick, <code>/gizmo</code> draws debug shapes and <code>--log mod:mymod=debug</code> turns on your debug lines.</p>
+      <p>A panic in your callback disables that callback and names your mod in the log. Native crashes write a report with the mod that was running.</p>
+    </div>
+    <figure class="shot clear"><div class="frame"><img src="assets/debug.png" alt="F3 debug screen"></div></figure>
+  </section>
+
+  <section class="sec right short" data-for="modder" data-scene="layers">
+    <div class="copy clear">
+      <h2>Getting it to other people</h2>
+      <p><code>weft --pack-mod run/mods/mymod</code> makes a zip of your mod's folder. A library only runs on the system it was built for, so put the Windows, Linux and macOS ones in the folder and the same zip works on all three.</p>
+      <p>The <code>release.yml</code> in examplemod builds all three on GitHub and publishes the zip when you push a tag.</p>
+      <p>A mod built against another engine version refuses to load and asks to be rebuilt, so expect to rebuild yours for a new version.</p>
+    </div>
+  </section>
+
+  <section class="sec center short" id="download" data-scene="banner" data-modder-scene="banner">
+    <div class="copy wide clear">
+      <h2>Download</h2>
+      <p>Windows, Linux and macOS are supported. A GPU with Vulkan is required.</p>
+      <p class="version" data-version></p>
+      <div class="systems">
+        <div class="system" data-os="windows">
+          <h3>Windows</h3>
+          <div class="how"><p>Unpack it anywhere and run <code>weft.exe</code>.</p></div>
+          <a class="button small" data-asset="windows-x64" href="https://github.com/Weft-Rust/Weft/releases/latest"><span>Download</span><small></small></a>
+        </div>
+        <div class="system" data-os="linux">
+          <h3>Linux x64</h3>
+          <div class="how">
+            <fieldset class="toggle variants">
+              <legend class="hidden">Package</legend>
+              <label><input type="radio" name="linux" value="linux-x64.tar.gz" checked><span>.tar.gz</span></label>
+              <label><input type="radio" name="linux" value="linux-x64.AppImage"><span>AppImage</span></label>
+            </fieldset>
+            <div data-variant="linux-x64.tar.gz"><p>Needs your GPU's Vulkan driver.</p><div class="panel"><pre><code>tar xf <span class="t">Weft</span>-*-linux-x64.tar.gz
+<span class="t">Weft</span>/weft</code></pre></div></div>
+            <div data-variant="linux-x64.AppImage" hidden><p>The same game as one file. Vulkan, the GPU driver and sound still come from your system.</p><div class="panel"><pre><code>chmod +x <span class="t">Weft</span>-*-linux-x64.AppImage
+./<span class="t">Weft</span>-*-linux-x64.AppImage</code></pre></div></div>
+          </div>
+          <a class="button small" data-asset="linux-x64.tar.gz" href="https://github.com/Weft-Rust/Weft/releases/latest"><span>Download</span><small></small></a>
+        </div>
+        <div class="system" data-os="macos">
+          <h3>macOS</h3>
+          <div class="how">
+            <fieldset class="toggle variants">
+              <legend class="hidden">Processor</legend>
+              <label><input type="radio" name="macos" value="macos-arm64.tar.gz" checked><span>Apple Silicon</span></label>
+              <label><input type="radio" name="macos" value="macos-x64.tar.gz"><span>Intel</span></label>
+            </fieldset>
+            <p>Vulkan comes with the game. The game isn't signed by Apple, so the second line clears the quarantine flag.</p>
+            <div data-variant="macos-arm64.tar.gz"><div class="panel"><pre><code>tar xf <span class="t">Weft</span>-*-macos-arm64.tar.gz
+xattr -dr com.apple.quarantine <span class="t">Weft</span>
+<span class="t">Weft</span>/weft</code></pre></div></div>
+            <div data-variant="macos-x64.tar.gz" hidden><div class="panel"><pre><code>tar xf <span class="t">Weft</span>-*-macos-x64.tar.gz
+xattr -dr com.apple.quarantine <span class="t">Weft</span>
+<span class="t">Weft</span>/weft</code></pre></div></div>
+          </div>
+          <a class="button small" data-asset="macos-arm64.tar.gz" href="https://github.com/Weft-Rust/Weft/releases/latest"><span>Download</span><small></small></a>
+        </div>
+      </div>
+      <p class="after-systems">Weft ships with its own textures. If Minecraft is installed through the official launcher or Prism, Weft builds a resource pack from that copy when it starts. The pack stays on your computer, and you can turn it off in Settings &gt; Resource Packs.</p>
+      <div class="after-systems" data-for="modder">
+        <p>To build it yourself you need Rust 1.95 or newer:</p>
+        <div class="panel"><pre><code><span class="k">git</span> clone https:<span class="c">//github.com/Weft-Rust/Weft.git</span>
+<span class="k">cd</span> <span class="t">Weft</span>
+<span class="k">cargo</span> run --release</code></pre></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec center short" data-scene="deep">
+    <div class="copy clear">
+      <h2>It's early</h2>
+      <p data-for="player">The save format can still change between versions, so a world may not carry over to the next one. If something breaks, report it on <a href="https://discord.gg/zTEekbrc7U">Discord</a> or in the <a href="https://github.com/Weft-Rust/Weft/issues">issues</a>.</p>
+      <p data-for="modder">The mod interface and the save format can still change between versions. Issues and pull requests are welcome, for the engine, mods, textures or docs. Read the <a href="https://github.com/Weft-Rust/Weft/blob/master/AI_POLICY.md">AI policy</a> before opening a pull request, it applies to everyone.</p>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <p class="foot-links">
+    <a href="https://github.com/Weft-Rust/Weft">GitHub</a>
+    <a href="https://discord.gg/zTEekbrc7U">Discord</a>
+    <a href="https://github.com/Weft-Rust/Weft/tree/master/docs">Docs</a>
+    <span>License <a href="https://github.com/Weft-Rust/Weft/blob/master/LICENSE">MPL-2.0</a></span>
+    <span>Made by <a href="https://github.com/VortexSo4">VortexSo4</a></span>
+  </p>
+  <p class="foot-legal">Not an official Minecraft product. Not approved by or associated with Mojang or Microsoft. Weft contains no Minecraft code or assets.</p>
+</footer>
+
+<script id="i18n" type="application/json">{"js.download": "Download", "js.download_for": "Download for {os}", "js.version": "{version}, {size} MB", "js.latest": "Latest version: {version}", "js.size": "{size} MB", "js.os.windows": "Windows", "js.os.linux": "Linux x64", "js.os.macos": "macOS", "js.mobile": "Weft runs on Windows, Linux and macOS, so you'll need a computer for it.", "js.scroll": "Scroll the code sideways to see the rest."}</script>
+<script src="./voxels.js"></script>
+<script src="./site.js"></script>
+</body>
+</html>
